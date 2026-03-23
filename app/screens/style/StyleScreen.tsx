@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useStyleScreenHelper } from "./style.hook";
 
 export type DecorStyle =
   | "Moderno"
@@ -30,20 +30,15 @@ const CHIPS = [
   "espelho grande",
 ];
 
-export default function StyleSelector({ onSubmit, loading }: Props) {
-  const [selected, setSelected] = useState<DecorStyle>("Moderno");
-  const [prompt, setPrompt] = useState("");
-
-  function addChip(chip: string) {
-    setPrompt((prev) => {
-      if (prev.toLowerCase().includes(chip)) return prev;
-      return prev ? `${prev}, ${chip}` : chip;
-    });
-  }
-
-  function handleSubmit() {
-    onSubmit(selected, prompt);
-  }
+export default function StyleScreen({ onSubmit, loading }: Props) {
+  const {
+    selected,
+    setSelected,
+    prompt,
+    setPrompt,
+    addChip,
+    handleSubmit,
+  } = useStyleScreenHelper({ onSubmit });
 
   return (
     <div className="flex flex-col gap-6">
