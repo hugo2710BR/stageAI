@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)"
+    ],
+    "additionalDirectories": [
+      "/home/hugo/Secretária/stageai-api"
+    ]
+  }
+}

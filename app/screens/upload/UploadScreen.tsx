@@ -1,64 +1,26 @@
 "use client";
 
-import { useState, useRef, DragEvent, ChangeEvent } from "react";
-import { fileToBase64, resizeImage } from "../lib/imageUtils";
+import { useUploadScreenHelper } from "./upload.hook";
 
 interface Props {
   onImageReady: (base64: string) => void;
 }
 
-export default function ImageUploader({ onImageReady }: Props) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  async function processFile(file: File) {
-    setError(null);
-
-    if (!file.type.startsWith("image/")) {
-      setError("Por favor carrega uma imagem (JPG ou PNG).");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("A imagem excede o limite de 10MB.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const base64 = await fileToBase64(file);
-      const resized = await resizeImage(base64);
-      setPreview(resized);
-      setFileName(file.name);
-      onImageReady(resized);
-    } catch {
-      setError("Erro ao processar a imagem. Tenta novamente.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleDrop(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  }
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
-  }
-
-  function handleReplace() {
-    setPreview(null);
-    setFileName(null);
-    setError(null);
-    if (inputRef.current) inputRef.current.value = "";
-  }
+export default function UploadScreen({ onImageReady }: Props) {
+  const {
+    isDragging,
+    preview,
+    fileName,
+    loading,
+    error,
+    inputRef,
+    handleDrop,
+    handleChange,
+    handleReplace,
+    handleDragOver,
+    handleDragLeave,
+    handleClick,
+  } = useUploadScreenHelper({ onImageReady });
 
   if (preview) {
     return (
@@ -81,13 +43,10 @@ export default function ImageUploader({ onImageReady }: Props) {
   return (
     <div>
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
+        onClick={handleClick}
         className={`
           flex flex-col items-center justify-center gap-3 p-10 rounded-2xl border-2 border-dashed cursor-pointer transition-colors
           ${isDragging ? "border-emerald-500 bg-emerald-50" : "border-gray-300 bg-white hover:border-emerald-400 hover:bg-gray-50"}
