@@ -1,6 +1,11 @@
-"use client";
-
-import { useRef, useEffect, useState, useCallback, MouseEvent, TouchEvent } from "react";
+import {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  MouseEvent,
+  TouchEvent,
+} from "react";
 
 type Tool = "paint" | "erase";
 
@@ -9,7 +14,10 @@ interface UseMaskScreenProps {
   onMaskReady: (canvas: HTMLCanvasElement) => void;
 }
 
-export function useMaskScreenHelper({ imageBase64, onMaskReady }: UseMaskScreenProps) {
+export function useMaskScreenHelper({
+  imageBase64,
+  onMaskReady,
+}: UseMaskScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const maskCanvasRef = useRef<HTMLCanvasElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -66,8 +74,16 @@ export function useMaskScreenHelper({ imageBase64, onMaskReady }: UseMaskScreenP
 
     const maskCtx = maskCanvas.getContext("2d");
     if (!maskCtx) return;
-    const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
-    const overlay = ctx.createImageData(displayCanvas.width, displayCanvas.height);
+    const maskData = maskCtx.getImageData(
+      0,
+      0,
+      maskCanvas.width,
+      maskCanvas.height,
+    );
+    const overlay = ctx.createImageData(
+      displayCanvas.width,
+      displayCanvas.height,
+    );
 
     for (let i = 0; i < maskData.data.length; i += 4) {
       const brightness = maskData.data[i];
@@ -81,7 +97,9 @@ export function useMaskScreenHelper({ imageBase64, onMaskReady }: UseMaskScreenP
     ctx.putImageData(overlay, 0, 0);
   }, []);
 
-  function getPos(e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>) {
+  function getPos(
+    e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>,
+  ) {
     const canvas = displayCanvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -106,49 +124,25 @@ export function useMaskScreenHelper({ imageBase64, onMaskReady }: UseMaskScreenP
       ctx.fillStyle = "#fff";
       ctx.fill();
     } else {
-      ctx.save();
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#000";
       ctx.fill();
-      ctx.restore();
-
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = maskCanvas.width;
-      tempCanvas.height = maskCanvas.height;
-      const tempCtx = tempCanvas.getContext("2d");
-      if (tempCtx) {
-        tempCtx.fillStyle = "#000";
-        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tempCtx.globalCompositeOperation = "destination-in";
-        tempCtx.drawImage(maskCanvas, 0, 0);
-
-        ctx.save();
-        ctx.globalCompositeOperation = "source-over";
-        const maskData = ctx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
-        for (let i = 0; i < maskData.data.length; i += 4) {
-          if (maskData.data[i + 3] === 0) {
-            maskData.data[i] = 0;
-            maskData.data[i + 1] = 0;
-            maskData.data[i + 2] = 0;
-            maskData.data[i + 3] = 255;
-          }
-        }
-        ctx.putImageData(maskData, 0, 0);
-        ctx.restore();
-      }
     }
 
     syncDisplay();
   }
 
-  function handleStart(e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>) {
+  function handleStart(
+    e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>,
+  ) {
     e.preventDefault();
     setIsDrawing(true);
     const { x, y } = getPos(e);
     draw(x, y);
   }
 
-  function handleMove(e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>) {
+  function handleMove(
+    e: MouseEvent<HTMLCanvasElement> | TouchEvent<HTMLCanvasElement>,
+  ) {
     if (!isDrawing) return;
     e.preventDefault();
     const { x, y } = getPos(e);

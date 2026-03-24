@@ -58,13 +58,17 @@ export function useHomeScreenHelper() {
     }
   }
 
-  function handleDownload() {
+  async function handleDownload() {
     if (!resultUrl) return;
+    const response = await fetch(resultUrl);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = resultUrl;
+    a.href = blobUrl;
     a.download = "stageai-result.jpg";
     document.body.appendChild(a);
     a.click();
+    URL.revokeObjectURL(blobUrl);
     document.body.removeChild(a);
   }
 

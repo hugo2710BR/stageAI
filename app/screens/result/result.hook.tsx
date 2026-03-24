@@ -1,11 +1,16 @@
-"use client";
-
-import { useState, useRef, useCallback, MouseEvent, TouchEvent } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  MouseEvent,
+  TouchEvent,
+  useEffect,
+} from "react";
 
 export function useResultScreenHelper() {
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const updatePosition = useCallback((clientX: number) => {
     const container = containerRef.current;
@@ -18,36 +23,46 @@ export function useResultScreenHelper() {
 
   function handleMouseDown(e: MouseEvent) {
     e.preventDefault();
-    isDragging.current = true;
+    setIsDragging(true);
     updatePosition(e.clientX);
-
-    function onMove(ev: globalThis.MouseEvent) {
-      if (isDragging.current) updatePosition(ev.clientX);
-    }
-    function onUp() {
-      isDragging.current = false;
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    }
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
   }
 
   function handleTouchStart(e: TouchEvent) {
-    isDragging.current = true;
+    setIsDragging(true);
     updatePosition(e.touches[0].clientX);
+  }
 
-    function onMove(ev: globalThis.TouchEvent) {
-      if (isDragging.current) updatePosition(ev.touches[0].clientX);
+  useEffect(() => {
+    if (!isDragging) return;
+    function onMove(ev: globalThis.MouseEvent) {
+      updatePosition(ev.clientX);
     }
     function onUp() {
-      isDragging.current = false;
-      window.removeEventListener("touchmove", onMove);
-      window.removeEventListener("touchend", onUp);
+      setIsDragging(false);
+    }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [isDragging]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    function onMove(ev: globalThis.TouchEvent) {
+      updatePosition(ev.touches[0].clientX);
+    }
+    function onUp() {
+      setIsDragging(false);
     }
     window.addEventListener("touchmove", onMove);
     window.addEventListener("touchend", onUp);
-  }
+    return () => {
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [isDragging]);
 
   return {
     position,
