@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "./contexts/authContext";
 
 export const metadata: Metadata = {
   title: "StageAI — Virtual Home Staging",
-  description: "Mobila virtualmente os teus imoveis com inteligencia artificial",
+  description:
+    "Mobila virtualmente os teus imoveis com inteligencia artificial",
 };
 
 export default function RootLayout({
@@ -14,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className="bg-gray-50 min-h-screen text-gray-900 antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

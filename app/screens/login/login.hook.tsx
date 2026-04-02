@@ -1,28 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
+import { useAuth } from "@/app/contexts/authContext";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../contexts/authContext";
 
 export function useLoginScreenHelper() {
-  // TODO: criar states: email, password, error, loading
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
-  // TODO: criar função handleSubmit(e: React.FormEvent)
-  // Dica:
-  //   1. e.preventDefault() — evita reload da página
-  //   2. setLoading(true) + setError("")
-  //   3. try: chamar login(email, password) do useAuth
-  //   4. se sucesso: router.push("/") para ir para a home
-  //   5. catch: setError(err.message)
-  //   6. finally: setLoading(false)
+  const handleSubmit = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      setError("");
+      try {
+        await login(email, password);
+        router.push("/");
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [email, login, password, router],
+  );
 
   return {
-    email: "",
-    setEmail: () => {},
-    password: "",
-    setPassword: () => {},
-    error: "",
-    loading: false,
-    handleSubmit: () => {},
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    loading,
+    onClickSubmit: handleSubmit,
   };
 }

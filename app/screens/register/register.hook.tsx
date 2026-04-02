@@ -1,30 +1,45 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
+import { useAuth } from "@/app/contexts/authContext";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../contexts/authContext";
 
 export function useRegisterScreenHelper() {
-  // TODO: criar states: email, password, name, error, loading
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const { register } = useAuth();
+  const router = useRouter();
 
-  // TODO: criar função handleSubmit(e: React.FormEvent)
-  // Dica:
-  //   1. e.preventDefault()
-  //   2. setLoading(true) + setError("")
-  //   3. try: chamar register(email, password, name) do useAuth
-  //   4. se sucesso: router.push("/") para ir para a home
-  //   5. catch: setError(err.message)
-  //   6. finally: setLoading(false)
+  const handleSubmit = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      setError("");
+      try {
+        await register(email, password, name);
+        router.push("/");
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [register, email, password, name, router],
+  );
 
   return {
-    email: "",
-    setEmail: () => {},
-    password: "",
-    setPassword: () => {},
-    name: "",
-    setName: () => {},
-    error: "",
-    loading: false,
-    handleSubmit: () => {},
+    email,
+    setEmail,
+    setName,
+    name,
+    password,
+    setPassword,
+    error,
+    loading,
+    onClickSubmit: handleSubmit,
   };
 }

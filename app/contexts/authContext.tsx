@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 import { loginUser, registerUser } from "../lib/api";
+import Cookies from "js-cookie";
 
 type AuthContextType = {
   token: string | null;
@@ -14,25 +15,23 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
-  );
+  const [token, setToken] = useState<string | null>(Cookies.get("token") ?? null);
 
   async function login(email: string, password: string) {
     const res = await loginUser(email, password);
     setToken(res.access_token);
-    localStorage.setItem("token", res.access_token);
+    Cookies.set("token", res.access_token);
   }
 
   async function register(email: string, password: string, name?: string) {
     const res = await registerUser(email, password, name);
     setToken(res.access_token);
-    localStorage.setItem("token", res.access_token);
+    Cookies.set("token", res.access_token);
   }
 
   function logout() {
     setToken(null);
-    localStorage.removeItem("token");
+    Cookies.remove("token");
   }
   return (
     <AuthContext.Provider

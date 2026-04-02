@@ -13,7 +13,7 @@ export default function RegisterScreen() {
     setName,
     error,
     loading,
-    handleSubmit,
+    onClickSubmit,
   } = useRegisterScreenHelper();
 
   return (
@@ -28,7 +28,7 @@ export default function RegisterScreen() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onClickSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1 block">
               Nome (opcional)
@@ -70,9 +70,7 @@ export default function RegisterScreen() {
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-600 text-center">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
           <button
             type="submit"

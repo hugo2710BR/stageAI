@@ -37,3 +37,27 @@ export async function loginUser(email: string, password: string) {
 
   return res.json();
 }
+
+export async function createStaging(
+  token: string,
+  image: string,
+  mask: string,
+  style: string,
+  prompt: string,
+) {
+  const res = await fetch(`${API_URL}/staging`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ image, mask, style, prompt }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || "Erro no staging");
+  }
+
+  return res.json();
+}
