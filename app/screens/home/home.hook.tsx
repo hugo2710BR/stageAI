@@ -27,6 +27,10 @@ export function useHomeScreenHelper() {
 
   async function handleStyleSubmit(style: DecorStyle, prompt: string) {
     if (!imageBase64 || !maskCanvasRef.current) return;
+    if (!token) {
+      setError("Sessão expirada. Faz login novamente.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -41,7 +45,7 @@ export function useHomeScreenHelper() {
       const mask = extractMask(maskCanvasRef.current, img.width, img.height);
 
       const data = await createStaging(
-        token || "",
+        token,
         imageBase64,
         mask,
         style,
@@ -65,16 +69,21 @@ export function useHomeScreenHelper() {
 
   async function handleDownload() {
     if (!resultUrl) return;
-    const response = await fetch(resultUrl);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = "stageai-result.jpg";
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(blobUrl);
-    document.body.removeChild(a);
+    try {
+      const response = await fetch(resultUrl);
+      if (!response.ok) throw new Error("Falha ao descarregar imagem");
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "stageai-result.jpg";
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch {
+      setError("Erro ao descarregar a imagem. Tenta novamente.");
+    }
   }
 
   function handleRetryStyle() {
