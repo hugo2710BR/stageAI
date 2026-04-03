@@ -70,3 +70,25 @@ export async function createStaging(
 
   return res.json();
 }
+
+export async function getStagingHistory(token: string) {
+  const res = await fetch(`${API_URL}/staging`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || "Erro ao carregar histórico");
+  }
+
+  return res.json() as Promise<
+    {
+      id: string;
+      style: string;
+      prompt: string | null;
+      resultUrl: string | null;
+      status: string;
+      createdAt: string;
+    }[]
+  >;
+}
