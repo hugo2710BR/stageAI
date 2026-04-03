@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { loginUser, registerUser } from "../lib/api";
 import Cookies from "js-cookie";
 
@@ -12,10 +12,39 @@ type AuthContextType = {
   logout: () => void;
 };
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
+function getValidToken(): string | null {
+  const token = Cookies.get("token") ?? null;
+  if (!token || isTokenExpired(token)) {
+    Cookies.remove("token");
+    return null;
+  }
+  return token;
+}
+
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(Cookies.get("token") ?? null);
+  const [token, setToken] = useState<string | null>(getValidToken);
+
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      if (isTokenExpired(token)) {
+        setToken(null);
+        Cookies.remove("token");
+      }
+    }, 30 * 1000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   async function login(email: string, password: string) {
     const res = await loginUser(email, password);

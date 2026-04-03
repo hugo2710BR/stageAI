@@ -1,5 +1,12 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
+function handleUnauthorized(res: Response) {
+  if (res.status === 401 && typeof window !== "undefined") {
+    import("js-cookie").then(({ default: Cookies }) => Cookies.remove("token"));
+    window.location.href = "/login";
+  }
+}
+
 export async function registerUser(
   email: string,
   password: string,
@@ -64,6 +71,7 @@ export async function createStaging(
   });
 
   if (!res.ok) {
+    handleUnauthorized(res);
     const data = await res.json();
     throw new Error(data.message || "Erro no staging");
   }
@@ -78,6 +86,7 @@ export async function deleteStaging(token: string, id: string) {
   });
 
   if (!res.ok) {
+    handleUnauthorized(res);
     const data = await res.json();
     throw new Error(data.message || "Erro ao apagar staging");
   }
@@ -89,6 +98,7 @@ export async function getStagingHistory(token: string) {
   });
 
   if (!res.ok) {
+    handleUnauthorized(res);
     const data = await res.json();
     throw new Error(data.message || "Erro ao carregar histórico");
   }
