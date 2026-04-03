@@ -21,13 +21,13 @@ const STYLES: { name: DecorStyle; emoji: string; desc: string }[] = [
 ];
 
 const CHIPS = [
-  "sofa de couro",
-  "mesa de jantar",
-  "iluminacao quente",
-  "plantas decorativas",
-  "tapete bege",
-  "prateleiras de madeira",
-  "espelho grande",
+  "floor lamp",
+  "large rug",
+  "wall art",
+  "indoor plants",
+  "leather sofa",
+  "wooden shelves",
+  "large mirror",
 ];
 
 export default function StyleScreen({ onSubmit, loading }: Props) {
@@ -78,7 +78,7 @@ export default function StyleScreen({ onSubmit, loading }: Props) {
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ex: sofa de couro cinza, mesa de centro em marmore..."
+          placeholder="ex: floor lamp, large rug, wall art (use English for best results)"
           className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
         />
 
