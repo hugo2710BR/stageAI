@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { type DecorStyle } from "../style/StyleScreen";
 import { extractMask } from "../../lib/imageUtils";
+import { useAuth } from "@/app/contexts/authContext";
+import { createStaging } from "@/app/lib/api";
 
 const STEPS = ["Upload", "Mascara", "Estilo", "Resultado"] as const;
 
@@ -13,6 +15,7 @@ export function useHomeScreenHelper() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { token } = useAuth();
 
   function handleImageReady(base64: string) {
     setImageBase64(base64);
@@ -37,13 +40,15 @@ export function useHomeScreenHelper() {
 
       const mask = extractMask(maskCanvasRef.current, img.width, img.height);
 
-      const res = await fetch("/api/stage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imageBase64, mask, style, prompt }),
-      });
-
-      const data = await res.json();
+      const data = await createStaging(
+        token || "",
+        imageBase64,
+        mask,
+        style,
+        prompt,
+        img.width,
+        img.height,
+      );
 
       if (data.error) {
         setError(data.error);

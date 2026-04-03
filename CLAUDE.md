@@ -75,6 +75,35 @@ stageai/
 4. Conectar staging ao backend (substituir /api/stage)
 5. i18n (futuro)
 
+## Arranque do projeto ("inicia os motores")
+Quando Hugo diz "inicia os motores", verificar e arrancar tudo por esta ordem:
+
+1. **Docker Desktop** — tem de estar aberto manualmente no Windows
+2. **PostgreSQL**
+   ```bash
+   cd ~/Desktop/stageai-api
+   docker compose up -d
+   ```
+3. **Backend** (terminal separado)
+   ```bash
+   cd ~/Desktop/stageai-api
+   npm run start:dev
+   ```
+4. **Frontend** (terminal separado)
+   ```bash
+   cd ~/Desktop/stageAI
+   npm run dev
+   ```
+
+### Primeira vez num PC novo
+```bash
+cd ~/Desktop/stageai-api
+npm install
+npx prisma@6 generate
+npx prisma@6 migrate dev
+```
+Depois criar `.env` a partir do `.env.example` e preencher `REPLICATE_API_TOKEN` e `JWT_SECRET`.
+
 ## Regras para o agente
 - NUNCA expor REPLICATE_API_TOKEN no frontend
 - Componentes sao todos "use client"
@@ -82,3 +111,6 @@ stageai/
 - Hugo e frontend engineer a aprender backend — guiar, explicar, deixa-lo codar
 - Mostrar before/after nas alteracoes e explicar como debug walkthrough
 - Dar opiniao honesta sobre decisoes
+- Sempre que Hugo sugerir algo, dar opiniao honesta como senior engineer antes de concordar ou discordar
+- Validar sempre o trabalho de Hugo apos cada passo
+- "inicia os motores" = arrancar Docker, BE e FE por ordem

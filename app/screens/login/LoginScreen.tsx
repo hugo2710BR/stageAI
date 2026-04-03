@@ -4,8 +4,15 @@ import Link from "next/link";
 import { useLoginScreenHelper } from "./login.hook";
 
 export default function LoginScreen() {
-  const { email, setEmail, password, setPassword, error, loading, handleSubmit } =
-    useLoginScreenHelper();
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    loading,
+    onClickSubmit,
+  } = useLoginScreenHelper();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -19,7 +26,7 @@ export default function LoginScreen() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onClickSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1 block">
               Email
@@ -48,9 +55,7 @@ export default function LoginScreen() {
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-600 text-center">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
           <button
             type="submit"
