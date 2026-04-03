@@ -71,6 +71,18 @@ export async function createStaging(
   return res.json();
 }
 
+export async function deleteStaging(token: string, id: string) {
+  const res = await fetch(`${API_URL}/staging/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || "Erro ao apagar staging");
+  }
+}
+
 export async function getStagingHistory(token: string) {
   const res = await fetch(`${API_URL}/staging`, {
     headers: { Authorization: `Bearer ${token}` },

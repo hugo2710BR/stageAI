@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/authContext";
-import { getStagingHistory } from "../../lib/api";
+import { getStagingHistory, deleteStaging } from "../../lib/api";
 
 type Staging = {
   id: string;
@@ -18,15 +18,38 @@ export function useHistoryHook() {
   const [stagings, setStagings] = useState<Staging[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!token) return;
-    console.log("token", token);
     getStagingHistory(token)
       .then(setStagings)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [token]);
 
-  return { stagings, loading, error };
+  function askDelete(id: string) {
+    setConfirmId(id);
+  }
+
+  function cancelDelete() {
+    setConfirmId(null);
+  }
+
+  async function confirmDelete() {
+    if (!confirmId || !token) return;
+    setDeleting(true);
+    try {
+      await deleteStaging(token, confirmId);
+      setStagings((prev) => prev.filter((s) => s.id !== confirmId));
+      setConfirmId(null);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erro ao apagar");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return { stagings, loading, error, confirmId, deleting, askDelete, cancelDelete, confirmDelete };
 }
