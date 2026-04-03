@@ -44,6 +44,8 @@ export async function createStaging(
   mask: string,
   style: string,
   prompt: string,
+  imageWidth?: number,
+  imageHeight?: number,
 ) {
   const res = await fetch(`${API_URL}/staging`, {
     method: "POST",
@@ -51,7 +53,14 @@ export async function createStaging(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ image, mask, style, prompt }),
+    body: JSON.stringify({
+      image,
+      mask,
+      style,
+      prompt,
+      width: imageWidth,
+      height: imageHeight,
+    }),
   });
 
   if (!res.ok) {

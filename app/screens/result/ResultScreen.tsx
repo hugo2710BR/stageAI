@@ -26,16 +26,11 @@ export default function ResultScreen({ before, after }: Props) {
       <img src={after} alt="Depois" className="w-full h-auto block" />
 
       <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${position}%` }}
+        className="absolute inset-0"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={before}
-          alt="Antes"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ minWidth: containerRef.current?.clientWidth || "100%" }}
-        />
+        <img src={before} alt="Antes" className="w-full h-auto block" />
       </div>
 
       {/* Divider line */}

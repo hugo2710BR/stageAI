@@ -46,6 +46,8 @@ export function useHomeScreenHelper() {
         mask,
         style,
         prompt,
+        img.width,
+        img.height,
       );
 
       if (data.error) {
