@@ -62,18 +62,30 @@ stageai/
 - Backend corre em http://localhost:3001 (repo separado: stageai-api)
 
 ## Estado atual do desenvolvimento
-- Fluxo de 4 etapas funcional e testado
-- Login/Register: visual criado, hooks por preencher (login.hook.tsx e register.hook.tsx)
-- AuthProvider ainda nao adicionado ao layout.tsx
-- Protecao de rotas nao implementada (sem token → redirecionar para /login)
-- API Route /api/stage sera substituida por chamadas ao backend
+- Fluxo de 4 etapas funcional e testado ✅
+- Login/Register implementados e funcionais ✅
+- AuthProvider adicionado ao layout.tsx ✅
+- Protecao de rotas via middleware.ts ✅
+- Token guardado em cookies (js-cookie) ✅
+- Staging ligado ao BE com JWT ✅
+- Slider before/after corrigido com clip-path ✅
+- Dimensoes da imagem passadas ao Replicate (snap para multiplo de 64) ✅
+- Rotas movidas para app/(routes)/ ✅
+
+## Auth
+- AuthContext em `app/contexts/authContext.tsx` com token em cookies (js-cookie)
+- Middleware em `middleware.ts` — sem token redireciona para /login
+- API client em `app/lib/api.ts` (loginUser, registerUser, createStaging)
+- Backend corre em http://localhost:3001 (repo separado: stageai-api)
 
 ## Proximos passos
-1. Preencher login.hook.tsx e register.hook.tsx (Hugo faz)
-2. Adicionar AuthProvider ao layout.tsx
-3. Proteger rotas (sem token → /login)
-4. Conectar staging ao backend (substituir /api/stage)
-5. i18n (futuro)
+1. Deploy — Vercel (FE) + Railway ou Render (BE + PostgreSQL)
+2. Acesso rede local (telemóvel):
+   - `.env.local`: `NEXT_PUBLIC_API_URL=http://192.168.1.91:3001/api`
+   - `api.ts`: `const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"`
+   - `.env` BE: `FRONTEND_URL=http://192.168.1.91:3000`
+   - FE: `npm run dev -- --hostname 0.0.0.0`
+3. i18n (futuro)
 
 ## Arranque do projeto ("inicia os motores")
 Quando Hugo diz "inicia os motores", verificar e arrancar tudo por esta ordem:
