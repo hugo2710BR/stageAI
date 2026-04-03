@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useMaskScreenHelper } from "./mask.hook";
 
 interface Props {
@@ -7,7 +8,16 @@ interface Props {
   onMaskReady: (canvas: HTMLCanvasElement) => void;
 }
 
+const TIPS = [
+  "Paint the entire empty area of the room, not individual objects",
+  "The larger the painted area, the more coherent the result",
+  "Works best on empty or semi-empty rooms",
+  "If the room already has furniture, paint only the zones you want to replace",
+  "In the prompt, use simple English terms (e.g. floor lamp, large rug)",
+];
+
 export default function MaskScreen({ imageBase64, onMaskReady }: Props) {
+  const [tipsOpen, setTipsOpen] = useState(false);
   const {
     containerRef,
     maskCanvasRef,
@@ -26,6 +36,29 @@ export default function MaskScreen({ imageBase64, onMaskReady }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Tips balloon */}
+      <div className="rounded-xl border border-emerald-100 bg-emerald-50 overflow-hidden">
+        <button
+          onClick={() => setTipsOpen((o) => !o)}
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-emerald-700"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-base">💡</span>
+            How to get the best result
+          </span>
+          <span className="text-emerald-500 text-xs">{tipsOpen ? "▲ Hide" : "▼ Show"}</span>
+        </button>
+        {tipsOpen && (
+          <ul className="px-4 pb-4 flex flex-col gap-2">
+            {TIPS.map((tip) => (
+              <li key={tip} className="flex items-start gap-2 text-sm text-emerald-800">
+                <span className="mt-0.5 text-emerald-400">✓</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 bg-white rounded-xl border border-gray-100 shadow-sm p-3">
         <button
