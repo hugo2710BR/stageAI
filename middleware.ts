@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -10,8 +10,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token && isPublicRoute) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (token && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/register")) {
+    return NextResponse.redirect(new URL("/staging", request.url));
   }
 
   return NextResponse.next();

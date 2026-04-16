@@ -15,30 +15,35 @@ O utilizador carrega uma foto, pinta a area a mobilar, escolhe um estilo e a IA 
 ```
 stageai/
 ├── CLAUDE.md
+├── middleware.ts                         ← proteção de rotas (/ e /staging requerem token)
 ├── app/
-│   ├── page.tsx                          ← re-export HomeScreen
+│   ├── page.tsx                          ← re-export LandingScreen (rota / — pública)
 │   ├── layout.tsx                        ← layout base
 │   ├── globals.css
-│   ├── login/page.tsx                    ← rota /login
-│   ├── register/page.tsx                 ← rota /register
-│   ├── api/stage/route.ts               ← proxy Replicate (a ser substituido pelo backend)
+│   ├── (routes)/
+│   │   ├── login/page.tsx                ← rota /login
+│   │   ├── register/page.tsx             ← rota /register
+│   │   ├── history/page.tsx              ← rota /history
+│   │   └── staging/page.tsx              ← rota /staging (app principal)
 │   ├── contexts/
-│   │   └── authContext.tsx               ← AuthProvider (token em localStorage, login/register/logout)
+│   │   └── authContext.tsx               ← AuthProvider (token em cookies, login/register/logout, JWT expiry check)
 │   ├── screens/
+│   │   ├── landing/LandingScreen.tsx     ← landing page pública
 │   │   ├── home/HomeScreen.tsx + home.hook.tsx       ← orquestrador do fluxo 4 etapas
 │   │   ├── upload/UploadScreen.tsx + upload.hook.tsx ← step 1: drag & drop upload
 │   │   ├── mask/MaskScreen.tsx + mask.hook.tsx       ← step 2: pintar mascara
 │   │   ├── style/StyleScreen.tsx + style.hook.tsx    ← step 3: escolher estilo + prompt
 │   │   ├── result/ResultScreen.tsx + result.hook.tsx ← step 4: slider before/after
+│   │   ├── history/HistoryScreen.tsx + history.hook.tsx ← histórico de stagings
 │   │   ├── login/LoginScreen.tsx + login.hook.tsx    ← form login
 │   │   └── register/RegisterScreen.tsx + register.hook.tsx ← form register
 │   ├── components/
 │   │   ├── header/header.tsx + index.ts
 │   │   └── progressIndicator/progressIndicator.tsx + index.ts
 │   └── lib/
-│       ├── api.ts                        ← API client (loginUser, registerUser)
+│       ├── api.ts                        ← API client (loginUser, registerUser, createStaging, getStagingHistory, deleteStaging)
 │       └── imageUtils.ts                 ← fileToBase64, resizeImage, extractMask
-├── .env.local                            ← REPLICATE_API_TOKEN (nao commitar)
+├── .env.local                            ← NEXT_PUBLIC_API_URL (nao commitar)
 └── package.json
 ```
 
@@ -64,13 +69,15 @@ stageai/
 ## Estado atual do desenvolvimento
 - Fluxo de 4 etapas funcional e testado ✅
 - Login/Register implementados e funcionais ✅
-- AuthProvider adicionado ao layout.tsx ✅
+- AuthProvider com verificação de expiração JWT (load + cada 30s) ✅
 - Protecao de rotas via middleware.ts ✅
 - Token guardado em cookies (js-cookie) ✅
 - Staging ligado ao BE com JWT ✅
-- Slider before/after corrigido com clip-path ✅
-- Dimensoes da imagem passadas ao Replicate (snap para multiplo de 64) ✅
-- Rotas movidas para app/(routes)/ ✅
+- Modelo AI: Replicate flux-fill-pro ($0.05/geração) ✅
+- Imagens guardadas no Cloudflare R2 (URLs permanentes) ✅
+- Histórico de stagings com delete ✅
+- Landing page pública em / ✅
+- App principal em /staging ✅
 
 ## Auth
 - AuthContext em `app/contexts/authContext.tsx` com token em cookies (js-cookie)
