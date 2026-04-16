@@ -22,7 +22,7 @@ const STEPS = [
 
 export default function LandingScreen() {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col animate-fade-in">
 
       {/* Header */}
       <header className="w-full px-6 py-5 flex items-center justify-between max-w-6xl mx-auto">
