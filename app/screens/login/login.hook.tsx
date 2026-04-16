@@ -20,7 +20,7 @@ export function useLoginScreenHelper() {
       setError("");
       try {
         await login(email, password);
-        router.push("/");
+        router.push("/staging");
       } catch (error: any) {
         setError(error.message);
       } finally {
