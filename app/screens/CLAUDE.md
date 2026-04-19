@@ -35,6 +35,7 @@ Excepção: screens estáticas sem estado (ex: `LandingScreen.tsx`) podem não t
 | `login/` | `LoginScreen.tsx` | `/login` | Formulário de login |
 | `register/` | `RegisterScreen.tsx` | `/register` | Formulário de registo |
 | `history/` | `HistoryScreen.tsx` | `/history` | Grelha de stagings anteriores com delete |
+| `pricing/` | `PricingScreen.tsx` | `/pricing` | Planos e preços (dinâmico via BE). Sem hook. |
 
 ## Fluxo dos steps (home → upload → mask → style → result)
 Os steps `upload`, `mask`, `style` e `result` são montados dentro do `HomeScreen` com base no estado `step` do `home.hook`.

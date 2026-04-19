@@ -78,6 +78,11 @@ stageai/
 | `getStagingHistory(token)` | GET | `/staging` | Sim |
 | `deleteStaging(token, id)` | DELETE | `/staging/:id` | Sim |
 | `getPlans()` | GET | `/plans` | Não |
+| `createCheckout(token, planName)` | POST | `/payments/checkout` | Sim |
+
+## Rotas públicas (middleware.ts)
+`/`, `/login`, `/register`, `/pricing` — sem token permitido.
+`/staging`, `/history` — requerem token JWT.
 
 ## Estado atual do desenvolvimento
 - Fluxo de 4 etapas funcional ✅
@@ -95,6 +100,7 @@ stageai/
 - Rate limiting por plano (free: 3/mês, starter: 30, pro: 100, agency: ∞) ✅
 - Botão Upgrade com gradiente animado no header ✅
 - Fade-in em todas as navegações ✅
+- Pagamentos via Lemon Squeezy (checkout + webhook) ✅
 
 ## Arranque do projeto ("inicia os motores")
 Quando Hugo diz "inicia os motores", verificar e arrancar tudo por esta ordem:
