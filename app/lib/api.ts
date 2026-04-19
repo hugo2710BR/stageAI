@@ -121,8 +121,28 @@ export type Plan = {
   features: string[];
   highlighted: boolean;
   sortOrder: number;
-  stripePriceId: string | null;
+  lsVariantId: string | null;
 };
+
+export async function createCheckout(token: string, planName: string): Promise<string> {
+  const res = await fetch(`${API_URL}/payments/checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ planName }),
+  });
+
+  if (!res.ok) {
+    handleUnauthorized(res);
+    const data = await res.json();
+    throw new Error(data.message || 'Erro ao criar checkout');
+  }
+
+  const data = await res.json();
+  return data.url;
+}
 
 export async function getPlans(): Promise<Plan[]> {
   const res = await fetch(`${API_URL}/plans`);
