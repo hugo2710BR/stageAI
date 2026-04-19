@@ -1,41 +1,30 @@
-# Componentes — StageAI
+# components
 
-## Convenções
-- Todos os componentes têm `"use client"` no topo
-- Props sempre tipadas com interface local
-- Nenhum componente faz fetch direto à Replicate — isso é responsabilidade da API Route
-- Tailwind para styling — sem CSS modules nem styled-components
-- Cor primária: `emerald-600` (#059669) — usar em CTAs, estados ativos, badges de sucesso
+## Objetivo
+Componentes reutilizáveis sem lógica de negócio — usados em mais do que um screen ou contexto.
+
+## Regras
+- Todos têm `"use client"` no topo
+- Props sempre tipadas com interface local no próprio ficheiro
+- Sem fetch, sem chamadas à `api.ts`, sem acesso ao `AuthContext`
+- Styling exclusivamente com Tailwind — cor primária `emerald-600`
+- Cada componente vive na sua própria subpasta com `index.ts` a re-exportar
 
 ## Componentes existentes
 
-### `ImageUploader.tsx`
-- **Props**: `onImageReady: (base64: string) => void`
-- **Comportamento**: drag & drop + click to upload, valida tipo e tamanho, chama `fileToBase64` + `resizeImage` de `../lib/imageUtils`
-- **Estados internos**: `isDragging`, `preview`, `fileName`, `loading`, `error`
-- **Não alterar**: a lógica de resize (máx 1024px) é necessária para o Replicate aceitar a imagem
+### `header/`
+Barra de topo da app autenticada.
+- Mostra logo StageAI, contador de gerações restantes (via `getUsage`), link Histórico, botão Logout
+- Usa `AuthContext` para token e logout
+- Faz um único `fetch` ao arranque para buscar o usage — não é um componente puramente visual
 
-### `MaskCanvas.tsx`
-- **Props**: `imageBase64: string`, `onMaskReady: (canvas: HTMLCanvasElement) => void`
-- **Comportamento**: renderiza a imagem + canvas overlay, pincel branco sobre fundo preto, suporta touch e mouse
-- **Estados internos**: `tool` (paint | erase), `brushSize` (10–120px), `isDrawing`
-- **Importante**: usa dois canvas — `maskCanvasRef` (oculto, enviado à API) e `displayCanvasRef` (visível, overlay verde semi-transparente)
-- **Cursor**: SVG dinâmico que reflete o tamanho do brush atual
+### `progressIndicator/`
+Indicador de progresso do fluxo de 4 etapas.
+- Props: `steps: readonly string[]`, `step: number` (1-based)
+- Passo completo = círculo verde com ✓; ativo = verde; pendente = cinzento
+- Sem estado interno, sem efeitos — componente puro
 
-### `StyleSelector.tsx`
-- **Props**: `onSubmit: (style: DecorStyle, prompt: string) => void`, `loading: boolean`
-- **Tipos**: `DecorStyle = "Moderno" | "Escandinavo" | "Industrial" | "Mediterrâneo"`
-- **Comportamento**: grid de 4 cards de estilo + textarea de prompt + chips de sugestão rápida
-- **Chips disponíveis**: sofá de couro, mesa de jantar, iluminação quente, plantas decorativas, tapete bege, prateleiras de madeira, espelho grande
-
-### `BeforeAfterSlider.tsx`
-- **Props**: `before: string`, `after: string` (ambos base64 ou URL)
-- **Comportamento**: slider drag horizontal, clip da imagem "antes" à esquerda do divisor
-- **Suporta**: mouse e touch
-- **Não usar**: bibliotecas externas — implementado com CSS puro e refs
-
-## Como adicionar um novo componente
-1. Criar em `app/components/NomeComponente.tsx`
-2. Adicionar `"use client"` no topo
-3. Exportar como `default`
-4. Documentar aqui neste CLAUDE.md com props e comportamento
+## Como adicionar um componente
+1. Criar `app/components/<NomeComponente>/<NomeComponente>.tsx`
+2. Criar `app/components/<NomeComponente>/index.ts` com `export { NomeComponente } from './<NomeComponente>'`
+3. Documentar aqui: nome, props, comportamento

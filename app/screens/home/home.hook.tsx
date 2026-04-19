@@ -60,8 +60,13 @@ export function useHomeScreenHelper() {
         setResultUrl(data.result);
         setStep(4);
       }
-    } catch {
-      setError("Erro ao comunicar com a API. Tenta novamente.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : null;
+      setError(
+        message && message.includes("Limite")
+          ? `${message} Vê os nossos planos em /pricing.`
+          : "Erro ao comunicar com a API. Tenta novamente.",
+      );
     } finally {
       setLoading(false);
     }

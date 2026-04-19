@@ -92,6 +92,25 @@ export async function deleteStaging(token: string, id: string) {
   }
 }
 
+export async function getUsage(token: string): Promise<{
+  plan: string;
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+}> {
+  const res = await fetch(`${API_URL}/staging/usage`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    handleUnauthorized(res);
+    const data = await res.json();
+    throw new Error(data.message || 'Erro ao carregar uso');
+  }
+
+  return res.json();
+}
+
 export async function getStagingHistory(token: string) {
   const res = await fetch(`${API_URL}/staging`, {
     headers: { Authorization: `Bearer ${token}` },
