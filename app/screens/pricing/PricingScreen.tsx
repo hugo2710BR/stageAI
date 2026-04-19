@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getPlans, type Plan } from "../../lib/api";
+import { getPlans, createCheckout, type Plan } from "../../lib/api";
+import { useAuth } from "../../contexts/authContext";
 
 export default function PricingScreen() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     getPlans()
@@ -14,6 +17,17 @@ export default function PricingScreen() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleUpgrade(plan: Plan) {
+    if (!plan.lsVariantId || !token) return;
+    setCheckoutLoading(plan.name);
+    try {
+      const url = await createCheckout(token, plan.name);
+      window.location.href = url;
+    } catch {
+      setCheckoutLoading(null);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-16 animate-fade-in">
@@ -71,14 +85,25 @@ export default function PricingScreen() {
                 </ul>
 
                 <button
-                  disabled
-                  className={`mt-auto rounded-xl py-2 text-sm font-semibold transition ${
-                    plan.highlighted
-                      ? "bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  disabled={!plan.lsVariantId || checkoutLoading === plan.name}
+                  onClick={() => handleUpgrade(plan)}
+                  className={`mt-auto rounded-xl py-2 text-sm font-semibold transition flex items-center justify-center gap-2 ${
+                    plan.lsVariantId
+                      ? plan.highlighted
+                        ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        : "bg-gray-800 text-white hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
                   }`}
                 >
-                  {plan.name === "free" ? "Plano atual" : "Em breve"}
+                  {checkoutLoading === plan.name ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : plan.name === "free" ? (
+                    "Plano atual"
+                  ) : plan.lsVariantId ? (
+                    "Upgrade"
+                  ) : (
+                    "Em breve"
+                  )}
                 </button>
               </div>
             ))}
@@ -86,7 +111,7 @@ export default function PricingScreen() {
         )}
 
         <p className="text-center text-xs text-gray-400 mt-10">
-          Pagamentos via Stripe — em breve.{" "}
+          Pagamentos processados por Lemon Squeezy.{" "}
           <Link href="/staging" className="text-emerald-600 hover:underline">
             Voltar à app
           </Link>

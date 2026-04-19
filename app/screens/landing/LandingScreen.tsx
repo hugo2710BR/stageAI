@@ -31,6 +31,12 @@ export default function LandingScreen() {
         </span>
         <nav className="flex items-center gap-4">
           <Link
+            href="/pricing"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Pricing
+          </Link>
+          <Link
             href="/login"
             className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
           >
