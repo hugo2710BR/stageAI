@@ -60,7 +60,7 @@ export const Header = () => {
           </span>
         )}
 
-        {usage?.plan === "free" && (
+        {usage && usage.remaining === 0 && usage.plan !== "agency" && (
           <div className="relative rounded-xl p-[2px] overflow-hidden">
             <div
               className="absolute w-[200%] h-[200%] -left-1/2 -top-1/2 animate-[spin_3s_linear_infinite]"
