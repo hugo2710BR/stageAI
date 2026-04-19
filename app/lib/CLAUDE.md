@@ -24,6 +24,9 @@ Trata automaticamente respostas 401 — remove cookie e redireciona para `/login
 | `getUsage(token)` | GET | `/staging/usage` | Sim |
 | `getStagingHistory(token)` | GET | `/staging` | Sim |
 | `deleteStaging(token, id)` | DELETE | `/staging/:id` | Sim |
+| `getUsage(token)` | GET | `/staging/usage` | Sim |
+| `getPlans()` | GET | `/plans` | Não |
+| `createCheckout(token, planName)` | POST | `/payments/checkout` | Sim |
 
 ### `imageUtils.ts`
 Funções de manipulação de imagem — correm exclusivamente no browser.
