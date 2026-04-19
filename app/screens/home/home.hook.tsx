@@ -36,6 +36,25 @@ export function useHomeScreenHelper() {
     setError(null);
 
     try {
+      const ctx = maskCanvasRef.current.getContext("2d");
+      if (ctx) {
+        const { width, height } = maskCanvasRef.current;
+        const pixels = ctx.getImageData(0, 0, width, height).data;
+        let white = 0;
+        for (let i = 0; i < pixels.length; i += 4) white += pixels[i] > 30 ? 1 : 0;
+        const coverage = white / (width * height);
+        if (coverage === 0) {
+          setError("Pinta primeiro a área que queres mobilar.");
+          setLoading(false);
+          return;
+        }
+        if (coverage > 0.9) {
+          setError("A área pintada cobre quase toda a imagem. O modelo de IA precisa de contexto — deixa pelo menos uma parte da sala sem pintar.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const img = new Image();
       await new Promise<void>((resolve) => {
         img.onload = () => resolve();
@@ -60,8 +79,13 @@ export function useHomeScreenHelper() {
         setResultUrl(data.result);
         setStep(4);
       }
-    } catch {
-      setError("Erro ao comunicar com a API. Tenta novamente.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : null;
+      setError(
+        message && message.includes("Limite")
+          ? `${message} Vê os nossos planos em /pricing.`
+          : "Erro ao comunicar com a API. Tenta novamente.",
+      );
     } finally {
       setLoading(false);
     }

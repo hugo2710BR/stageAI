@@ -1,29 +1,35 @@
-# Lib / Utilitários — StageAI
+# lib
 
-## Ficheiros
-
-### `imageUtils.ts`
-Funções puras de manipulação de imagem. Todas correm no browser (não são compatíveis com Node.js/server).
-
-#### `fileToBase64(file: File): Promise<string>`
-Converte um File do input/drop para data URL base64.
-Devolve string no formato `data:image/jpeg;base64,...`
-
-#### `resizeImage(dataUrl: string, maxSize = 1024): Promise<string>`
-Redimensiona mantendo aspect ratio. Necessário porque:
-- Replicate tem limite de tamanho de input
-- Imagens grandes aumentam o tempo de geração
-- Qualidade JPEG 0.92 — bom balanço qualidade/tamanho
-
-#### `extractMask(maskCanvas, width, height): string`
-Gera a máscara binária para enviar à API:
-- **Branco** = área onde a IA vai gerar mobília
-- **Preto** = área que a IA vai preservar
-- Aplica threshold de brightness > 30 para garantir preto/branco puro
-- Devolve PNG base64
+## Objetivo
+Funções utilitárias puras — sem estado, sem UI, sem chamadas diretas ao contexto React.
 
 ## Regras
-- Nenhuma função aqui faz fetch ou acede à API
-- Todas as funções são assíncronas onde necessário (FileReader, Canvas)
-- Se adicionares utilitários relacionados com imagem, colocar aqui
-- Se adicionares utilitários de outra natureza (ex: formatação, validação), criar `app/lib/utils.ts` separado
+- Funções de imagem ficam em `imageUtils.ts`
+- Funções de comunicação com o backend ficam em `api.ts`
+- Se precisares de um terceiro tipo de utilitário (formatação, validação, datas), criar `utils.ts` separado
+- Nenhuma função aqui importa componentes ou contextos React
+
+## Ficheiros existentes
+
+### `api.ts`
+Cliente HTTP para o backend NestJS (`stageai-api`, porta 3001).
+Todas as funções recebem `token` como primeiro argumento quando a rota é autenticada.
+Trata automaticamente respostas 401 — remove cookie e redireciona para `/login`.
+
+| Função | Método | Rota | Auth |
+|---|---|---|---|
+| `registerUser(email, password, name?)` | POST | `/auth/register` | Não |
+| `loginUser(email, password)` | POST | `/auth/login` | Não |
+| `createStaging(token, image, mask, style, prompt, w?, h?)` | POST | `/staging` | Sim |
+| `getUsage(token)` | GET | `/staging/usage` | Sim |
+| `getStagingHistory(token)` | GET | `/staging` | Sim |
+| `deleteStaging(token, id)` | DELETE | `/staging/:id` | Sim |
+
+### `imageUtils.ts`
+Funções de manipulação de imagem — correm exclusivamente no browser.
+
+| Função | Descrição |
+|---|---|
+| `fileToBase64(file)` | Converte File para data URL base64 |
+| `resizeImage(dataUrl, maxSize?)` | Redimensiona mantendo aspect ratio (default 1024px, JPEG 0.92) |
+| `extractMask(canvas, w, h)` | Gera máscara PNG binária: branco=gerar, preto=preservar. Threshold brightness > 30 |

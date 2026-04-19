@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useMaskScreenHelper } from "./mask.hook";
 
 interface Props {
@@ -17,7 +16,6 @@ const TIPS = [
 ];
 
 export default function MaskScreen({ imageBase64, onMaskReady }: Props) {
-  const [tipsOpen, setTipsOpen] = useState(false);
   const {
     containerRef,
     maskCanvasRef,
@@ -28,6 +26,8 @@ export default function MaskScreen({ imageBase64, onMaskReady }: Props) {
     setBrushSize,
     canvasSize,
     cursorSvg,
+    tipsOpen,
+    setTipsOpen,
     handleStart,
     handleMove,
     handleEnd,
@@ -105,7 +105,7 @@ export default function MaskScreen({ imageBase64, onMaskReady }: Props) {
       <div ref={containerRef} className="relative w-full max-w-2xl mx-auto">
         {canvasSize.width > 0 && (
           <div
-            className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+            className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm mx-auto"
             style={{ width: canvasSize.width, height: canvasSize.height }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

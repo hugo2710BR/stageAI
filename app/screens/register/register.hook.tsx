@@ -21,7 +21,7 @@ export function useRegisterScreenHelper() {
       setError("");
       try {
         await register(email, password, name);
-        router.push("/");
+        router.push("/staging");
       } catch (error: any) {
         setError(error.message);
       } finally {
