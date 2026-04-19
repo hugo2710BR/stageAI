@@ -25,7 +25,7 @@ export default function HomeScreen() {
   } = useHomeScreenHelper();
 
   return (
-    <main className="min-h-screen py-8 px-4">
+    <main className="min-h-screen py-8 px-4 animate-fade-in">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <Header />

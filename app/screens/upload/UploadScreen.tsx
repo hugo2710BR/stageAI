@@ -24,8 +24,8 @@ export default function UploadScreen({ onImageReady }: Props) {
 
   if (preview) {
     return (
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative w-full max-w-lg rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+      <div className="flex flex-col items-center gap-4 w-full">
+        <div className="relative w-full max-w-lg mx-auto rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="Preview" className="w-full h-auto" />
         </div>

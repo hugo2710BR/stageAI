@@ -61,7 +61,9 @@ export function useMaskScreenHelper({
       displayCanvas.width = canvasSize.width;
       displayCanvas.height = canvasSize.height;
     }
-  }, [canvasSize]);
+
+    if (maskCanvas) onMaskReady(maskCanvas);
+  }, [canvasSize, onMaskReady]);
 
   const syncDisplay = useCallback(() => {
     const displayCanvas = displayCanvasRef.current;
@@ -170,6 +172,8 @@ export function useMaskScreenHelper({
   const cursorSize = brushSize;
   const cursorSvg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${cursorSize}' height='${cursorSize}'%3E%3Ccircle cx='${cursorSize / 2}' cy='${cursorSize / 2}' r='${cursorSize / 2 - 1}' fill='none' stroke='%23059669' stroke-width='2'/%3E%3C/svg%3E") ${cursorSize / 2} ${cursorSize / 2}, crosshair`;
 
+  const [tipsOpen, setTipsOpen] = useState(false);
+
   return {
     containerRef,
     maskCanvasRef,
@@ -180,6 +184,8 @@ export function useMaskScreenHelper({
     setBrushSize,
     canvasSize,
     cursorSvg,
+    tipsOpen,
+    setTipsOpen,
     handleStart,
     handleMove,
     handleEnd,

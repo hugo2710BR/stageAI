@@ -30,7 +30,7 @@ export default function ResultScreen({ before, after }: Props) {
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={before} alt="Antes" className="w-full h-auto block" />
+        <img src={before} alt="Antes" className="absolute inset-0 w-full h-full object-cover block" />
       </div>
 
       {/* Divider line */}
