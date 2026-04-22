@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ResultScreen from "../result/ResultScreen";
 
 const STEPS = [
   {
@@ -10,14 +11,20 @@ const STEPS = [
   },
   {
     number: "02",
-    title: "Paint the area",
-    desc: "Brush over the zone you want to furnish. The rest stays untouched.",
-  },
-  {
-    number: "03",
     title: "Choose a style",
     desc: "Pick Modern, Scandinavian, Industrial or Mediterranean and let AI do the rest.",
   },
+  {
+    number: "03",
+    title: "Get your result",
+    desc: "Download your staged photo in seconds. No designers, no waiting.",
+  },
+];
+
+const EXAMPLES = [
+  { before: "/examples/before1.png", after: "/examples/after1.png" },
+  { before: "/examples/before2.png", after: "/examples/after2.png" },
+  { before: "/examples/before3.png", after: "/examples/after3.png" },
 ];
 
 export default function LandingScreen() {
@@ -52,7 +59,7 @@ export default function LandingScreen() {
       </header>
 
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 max-w-4xl mx-auto">
+      <section className="flex flex-col items-center justify-center text-center px-6 py-20 max-w-4xl mx-auto">
         <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full mb-6 tracking-wide uppercase">
           AI-powered home staging
         </span>
@@ -62,14 +69,14 @@ export default function LandingScreen() {
           <span className="text-emerald-600">in seconds.</span>
         </h1>
         <p className="text-lg text-gray-500 max-w-xl mb-10">
-          Upload a photo, paint the area you want to furnish, pick a style — and let AI generate a stunning result. No designers, no renders, no waiting.
+          Upload a photo, pick a style — and let AI generate a stunning staged result. No designers, no renders, no waiting.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             href="/register"
             className="px-8 py-3.5 bg-emerald-600 text-white font-semibold rounded-2xl hover:bg-emerald-700 transition-colors shadow-sm"
           >
-            Start for free
+            Try it now
           </Link>
           <Link
             href="/login"
@@ -78,11 +85,29 @@ export default function LandingScreen() {
             Sign in
           </Link>
         </div>
-        <p className="text-xs text-gray-400 mt-4">3 free generations on signup. No credit card required.</p>
+      </section>
+
+      {/* Gallery */}
+      <section className="py-16 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-4">
+            See the difference
+          </h2>
+          <p className="text-gray-500 text-center mb-12 text-sm">
+            Drag the slider to compare before and after.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {EXAMPLES.map((ex, i) => (
+              <div key={i} className="aspect-video">
+                <ResultScreen before={ex.before} after={ex.after} fixed />
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* How it works */}
-      <section className="bg-gray-50 py-20 px-6">
+      <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">
             How it works
