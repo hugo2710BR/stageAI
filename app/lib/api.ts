@@ -53,6 +53,7 @@ export async function createStaging(
   prompt: string,
   imageWidth?: number,
   imageHeight?: number,
+  seed?: number,
 ) {
   const res = await fetch(`${API_URL}/staging`, {
     method: "POST",
@@ -67,6 +68,7 @@ export async function createStaging(
       prompt,
       width: imageWidth,
       height: imageHeight,
+      seed,
     }),
   });
 
