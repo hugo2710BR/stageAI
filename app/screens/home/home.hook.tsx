@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { type DecorStyle } from "../style/StyleScreen";
 import { extractMask } from "../../lib/imageUtils";
 import { useAuth } from "@/app/contexts/authContext";
-import { createStaging } from "@/app/lib/api";
+import { createStaging, getUsage } from "@/app/lib/api";
 
-const STEPS = ["Upload", "Mascara", "Estilo", "Resultado"] as const;
+const STEPS_FREE = ["Upload", "Estilo", "Resultado"] as const;
+const STEPS_PAID = ["Upload", "Mascara", "Estilo", "Resultado"] as const;
 
 export function useHomeScreenHelper() {
   const [step, setStep] = useState(1);
@@ -14,8 +15,21 @@ export function useHomeScreenHelper() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFreeUser, setIsFreeUser] = useState(false);
   const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const { token } = useAuth();
+
+  useEffect(() => {
+    if (!token) return;
+    getUsage(token)
+      .then((u) => setIsFreeUser(u.plan === "free"))
+      .catch(() => {});
+  }, [token]);
+
+  const STEPS = isFreeUser ? STEPS_FREE : STEPS_PAID;
+  const progressStep = isFreeUser
+    ? step === 1 ? 1 : step === 3 ? 2 : 3
+    : step;
 
   function handleImageReady(base64: string) {
     setImageBase64(base64);
@@ -26,7 +40,8 @@ export function useHomeScreenHelper() {
   }
 
   async function handleStyleSubmit(style: DecorStyle, prompt: string) {
-    if (!imageBase64 || !maskCanvasRef.current) return;
+    if (!imageBase64) return;
+    if (!isFreeUser && !maskCanvasRef.current) return;
     if (!token) {
       setError("Sessão expirada. Faz login novamente.");
       return;
@@ -36,32 +51,35 @@ export function useHomeScreenHelper() {
     setError(null);
 
     try {
-      const ctx = maskCanvasRef.current.getContext("2d");
-      if (ctx) {
-        const { width, height } = maskCanvasRef.current;
-        const pixels = ctx.getImageData(0, 0, width, height).data;
-        let white = 0;
-        for (let i = 0; i < pixels.length; i += 4) white += pixels[i] > 30 ? 1 : 0;
-        const coverage = white / (width * height);
-        if (coverage === 0) {
-          setError("Pinta primeiro a área que queres mobilar.");
-          setLoading(false);
-          return;
+      let mask: string | undefined;
+
+      if (!isFreeUser && maskCanvasRef.current) {
+        const ctx = maskCanvasRef.current.getContext("2d");
+        if (ctx) {
+          const { width, height } = maskCanvasRef.current;
+          const pixels = ctx.getImageData(0, 0, width, height).data;
+          let white = 0;
+          for (let i = 0; i < pixels.length; i += 4) white += pixels[i] > 30 ? 1 : 0;
+          const coverage = white / (width * height);
+          if (coverage === 0) {
+            setError("Pinta primeiro a área que queres mobilar.");
+            setLoading(false);
+            return;
+          }
+          if (coverage > 0.9) {
+            setError("A área pintada cobre quase toda a imagem. O modelo de IA precisa de contexto — deixa pelo menos uma parte da sala sem pintar.");
+            setLoading(false);
+            return;
+          }
         }
-        if (coverage > 0.9) {
-          setError("A área pintada cobre quase toda a imagem. O modelo de IA precisa de contexto — deixa pelo menos uma parte da sala sem pintar.");
-          setLoading(false);
-          return;
-        }
+
+        const img = new Image();
+        await new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.src = imageBase64;
+        });
+        mask = extractMask(maskCanvasRef.current, img.width, img.height);
       }
-
-      const img = new Image();
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.src = imageBase64;
-      });
-
-      const mask = extractMask(maskCanvasRef.current, img.width, img.height);
 
       const data = await createStaging(
         token,
@@ -69,8 +87,6 @@ export function useHomeScreenHelper() {
         mask,
         style,
         prompt,
-        img.width,
-        img.height,
       );
 
       if (data.error) {
@@ -128,6 +144,8 @@ export function useHomeScreenHelper() {
     STEPS,
     step,
     setStep,
+    progressStep,
+    isFreeUser,
     imageBase64,
     resultUrl,
     loading,

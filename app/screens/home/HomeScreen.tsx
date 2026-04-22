@@ -12,6 +12,8 @@ export default function HomeScreen() {
     STEPS,
     step,
     setStep,
+    progressStep,
+    isFreeUser,
     imageBase64,
     resultUrl,
     loading,
@@ -30,7 +32,7 @@ export default function HomeScreen() {
         {/* Header */}
         <Header />
         {/* Progress indicator */}
-        <ProgressIndicator step={step} steps={STEPS}/>
+        <ProgressIndicator step={progressStep} steps={STEPS}/>
         {/* Step content */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           {/* Step 1: Upload */}
@@ -43,7 +45,7 @@ export default function HomeScreen() {
               {imageBase64 && (
                 <div className="mt-6 flex justify-end">
                   <button
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(isFreeUser ? 3 : 2)}
                     className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
                   >
                     Continuar →
@@ -93,7 +95,7 @@ export default function HomeScreen() {
               )}
               <div className="mt-4">
                 <button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(isFreeUser ? 1 : 2)}
                   disabled={loading}
                   className="px-4 py-2.5 text-gray-600 hover:text-gray-800 font-medium transition-colors disabled:opacity-50"
                 >
