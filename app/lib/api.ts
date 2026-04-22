@@ -48,11 +48,12 @@ export async function loginUser(email: string, password: string) {
 export async function createStaging(
   token: string,
   image: string,
-  mask: string,
+  mask: string | undefined,
   style: string,
   prompt: string,
   imageWidth?: number,
   imageHeight?: number,
+  seed?: number,
 ) {
   const res = await fetch(`${API_URL}/staging`, {
     method: "POST",
@@ -67,6 +68,7 @@ export async function createStaging(
       prompt,
       width: imageWidth,
       height: imageHeight,
+      seed,
     }),
   });
 

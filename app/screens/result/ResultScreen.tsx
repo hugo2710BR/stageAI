@@ -5,9 +5,10 @@ import { useResultScreenHelper } from "./result.hook";
 interface Props {
   before: string;
   after: string;
+  fixed?: boolean;
 }
 
-export default function ResultScreen({ before, after }: Props) {
+export default function ResultScreen({ before, after, fixed = false }: Props) {
   const {
     position,
     containerRef,
@@ -18,12 +19,12 @@ export default function ResultScreen({ before, after }: Props) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-gray-100 shadow-sm select-none touch-none"
+      className={`relative w-full rounded-2xl overflow-hidden border border-gray-100 shadow-sm select-none touch-none ${fixed ? "h-full" : "max-w-2xl mx-auto"}`}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={after} alt="Depois" className="w-full h-auto block" />
+      <img src={after} alt="Depois" className={`w-full block ${fixed ? "h-full object-cover" : "h-auto"}`} />
 
       <div
         className="absolute inset-0"

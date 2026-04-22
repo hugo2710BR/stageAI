@@ -1,6 +1,6 @@
 # StageAI — Decision Log
 
-> Ultima atualizacao: 2026-04-18
+> Ultima atualizacao: 2026-04-22
 
 ---
 
@@ -9,16 +9,15 @@
 **Data:** 2026-04
 **Estado:** Implementado e em producao
 
-**Decisao:** Usar Fal AI com modelo `fal-ai/flux-pro/v1/fill` para inpainting.
+**Decisao:** Usar Fal AI com modelo `fal-ai/flux-pro/v1/fill` para inpainting (planos pagos).
 
 **Contexto:**
 - Projeto comecou com Replicate (stable-diffusion-inpainting)
 - Migrado para Fal AI por melhor qualidade de resultados e API mais simples
-- Replicate mantido como fallback comentado no codigo
 
 **Custos:**
-- $0.05 por geracao
-- Sem custos fixos (pay-per-use)
+- $0.05 por geracao (flux-pro/v1/fill)
+- Modelos mais baratos disponíveis para plano free (sem inpainting)
 
 **Alternativas consideradas:**
 - Replicate SD Inpainting — qualidade inferior, mantido como fallback
@@ -45,29 +44,32 @@
 
 ---
 
-## DEC-003: Monetizacao — Modelo hibrido
+## DEC-003: Monetizacao — Lemon Squeezy (nao Stripe)
 
 **Data:** 2026-04
-**Estado:** Planeado (FEAT-001 + FEAT-004)
+**Estado:** Implementado e em producao
 
-**Decisao:** Freemium com 3 niveis de subscricao + pay-per-use.
+**Decisao:** Usar Lemon Squeezy como plataforma de pagamentos. Stripe foi descartado.
 
-**Planos:**
-| Plano | Preco | Geracoes/mes |
+**Porque Lemon Squeezy:**
+- Merchant of Record — trata VAT e impostos automaticamente
+- Critico para vender na Europa sem complexidade fiscal
+- API simples, webhook com HMAC-SHA256
+- Plano futuro: migrar para Paddle (mais flexivel para pricing customizado)
+
+**Implementacao:**
+- `src/payments/payments.service.ts` — checkout + webhook handler
+- Webhook valida assinatura com raw body (nao JSON.stringify)
+- `user_id` passado como `custom_data` no checkout, recuperado no webhook
+- `planUpgradedAt` guardado no User ao fazer upgrade — reset do contador de uso
+
+**Planos ativos (lsVariantId no Postgres):**
+| Plano | Geracoes/mes | lsVariantId |
 |---|---|---|
-| Gratuito | €0 | 3 |
-| Starter | €12/mes | 30 |
-| Pro | €29/mes | 100 |
-| Agency | €79/mes | Ilimitado |
-
-**Pay-per-use:** Pacote de 10 creditos por €6 (qualquer plano).
-
-**Racional:**
-- 3 gratis permite experimentar sem compromisso
-- Starter cobre agentes individuais esporadicos
-- Pro para agentes ativos
-- Agency para empresas com volume
-- Pay-per-use para picos sem upgrade de plano
+| free | 3 | — |
+| starter | 30 | 1549528 |
+| pro | 100 | 1549619 |
+| agency | Ilimitado | — |
 
 ---
 
@@ -82,19 +84,12 @@
 
 **Principios:**
 - Nao comunicar tecnologia (IA, modelos, etc.) — comunicar resultado
-- O utilizador nao quer saber que modelo usa — quer fotos que vendem imoveis
 - Copy em portugues, UI simples, sem jargao tecnico
 
 **Publico-alvo:**
 1. Agentes imobiliarios (primary)
 2. Decoradores de interiores
 3. Proprietarios que vendem/arrendam
-
-**Concorrencia:**
-- REimagineHome — US market, precos em USD
-- Virtual Staging AI — generico, sem foco iberico
-- BoxBrownie — manual (humanos), caro, lento (24-48h)
-- StageAI diferencia-se: instantaneo, barato, focado no mercado local
 
 ---
 
@@ -108,25 +103,63 @@
 **Racional:**
 - Seguranca: tokens de IA nunca expostos no frontend
 - Deploy independente: FE no Vercel, BE no Railway
-- Separacao de concerns: frontend nao sabe como a IA funciona
-- Aprendizagem: Hugo aprende backend com NestJS dedicado
+- Separacao de concerns
 
 ---
 
-## DEC-006: Prioridades tecnicas imediatas
+## DEC-006: Soft delete nos stagings
 
 **Data:** 2026-04
-**Estado:** Ativo
+**Estado:** Implementado
 
-**Decisao:** Rate limiting e FEAT-001 antes de qualquer feature nova.
+**Decisao:** Apagar um staging nao remove o registo da DB — define `deletedAt`.
 
 **Racional:**
-- Sem limite, cada utilizador pode gerar custos ilimitados
-- A $0.05/geracao, 1000 utilizadores x 10 geracoes = $500/dia
-- Rate limiting e a unica feature que protege contra risco financeiro
-- Todas as outras features podem esperar — esta nao pode
+- Apagar um staging nao deve repor creditos mensais
+- Se fosse hard delete, um utilizador podia apagar e gerar de novo indefinidamente
+- O historico filtra por `deletedAt: null`
+- O R2 e apagado (para nao ocupar espaco), o registo Postgres fica
 
-**Infra:**
-- Railway: monitorizar cold starts, considerar plano pago se latencia aumentar
-- PostgreSQL: backup automatico ativo no Railway
-- R2: sem limites preocupantes na fase atual
+---
+
+## DEC-008: Remocao do plano free — trial unico de 3 geracoes
+
+**Data:** 2026-04-22
+**Estado:** Implementado em producao
+
+**Decisao:** Eliminar o plano free recorrente. Utilizadores novos recebem 3 geracoes de trial (plano "free" na DB, invisivel na pricing page). Quando esgotam, fazem upgrade.
+
+**Racional:**
+- Publico-alvo B2B (agentes imobiliarios) nao precisa de free recorrente para decidir
+- Abuso por contas multiplas eliminado (3 tentativas totais, nao por mes)
+- Pricing page mais limpa com 3 planos pagos
+
+**Implementacao:**
+- Plano "free" marcado como `active: false` na DB
+- Utilizadores novos continuam a comecar com `plan: "free"` (default no schema)
+- Rate limiting e logica de trial mantidos intactos
+
+---
+
+## DEC-007: Diferenciacao por modelo de IA e acesso a masking
+
+**Data:** 2026-04
+**Estado:** Decisao tomada — implementacao futura
+
+**Decisao:** O plano free nao tem acesso ao masking (inpainting). Usa um modelo mais barato de geracao full-room. Planos pagos (starter+) usam `flux-pro/v1/fill` com masking preciso.
+
+**Racional:**
+- `flux-pro/v1/fill` e o unico modelo Fal com inpainting real — nao pode ser partilhado entre planos sem impacto de custo
+- O masking E o diferenciador principal do produto para profissionais
+- Free users experimentam o resultado (full-room), pagam para ter controlo preciso (masking)
+- Esta separacao justifica o upgrade de forma clara e tangivel
+
+**Impacto no fluxo:**
+- Free: Upload → Estilo → Gerar (sem step de mascara)
+- Starter+: Upload → Mascara → Estilo → Gerar
+
+**Modelos candidatos para free:**
+- `fal-ai/flux/schnell` (~$0.003/geracao) — rapido, sem inpainting
+- `fal-ai/flux/dev` (~$0.025/geracao) — melhor qualidade, sem inpainting
+
+**Modelo free escolhido:** `fal-ai/flux/schnell` (~$0.003/geracao). Diferenca de qualidade clara vs flux-pro/v1/fill — argumento de upgrade forte e custo minimo no plano gratuito.

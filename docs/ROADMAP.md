@@ -1,73 +1,70 @@
 # StageAI — Roadmap
 
-> Ultima atualizacao: 2026-04-18
+> Ultima atualizacao: 2026-04-22
 
 ---
 
-## Semana 1-2 — Converter e proteger
+## Concluido ✅ (Semana 1-4)
 
-**Objetivo:** Proteger custos e melhorar conversao da landing page.
+| Feature | Notas |
+|---|---|
+| Rate limiting + planos (FEAT-001) | Limites dinamicos via tabela Plan, soft delete, planUpgradedAt |
+| Pagamentos Lemon Squeezy (FEAT-004) | Checkout + webhook + HMAC. Starter e Pro ativos. |
+| Pricing page dinamica | Dados do BE, botao Upgrade funcional |
+| Botao Upgrade animado | Gradiente cónico, aparece quando remaining === 0 |
+| Landing page com Pricing | Link no nav, rota publica |
+| Deploy FE + BE | Vercel + Railway em producao |
 
-| Feature | ID | Esforço | Repositorio |
+---
+
+## Fase atual — Diferenciacao de produto
+
+**Objetivo:** Justificar os planos pagos com features tangiveis.
+
+| Feature | ID | Esforco | Repositorio |
 |---|---|---|---|
-| Rate limiting + planos (3 free/mes) | FEAT-001 | Medio | FE + BE |
+| Free sem masking (modelo mais barato) | FEAT-NEW-001 | Medio | FE + BE |
 | Galeria before/after na landing | FEAT-002 | Baixo | FE |
-| Pagina de planos (UI, sem pagamento) | FEAT-001 (parcial) | Baixo | FE |
-
-**Entregaveis:**
-- Utilizadores gratuitos limitados a 3 geracoes/mes
-- Landing page com exemplos reais de before/after
-- Pagina /pricing com planos e precos (sem checkout ainda)
-
-**Risco:** Sem rate limiting, qualquer utilizador pode gerar custos ilimitados a $0.05/geracao.
-
----
-
-## Semana 3-4 — Monetizar
-
-**Objetivo:** Receita real e funcionalidades de retencao.
-
-| Feature | ID | Esforço | Repositorio |
-|---|---|---|---|
-| Integracao Stripe | FEAT-004 | Alto | FE + BE |
-| Partilha publica por link | FEAT-005 | Medio | FE + BE |
 | Variacoes no resultado | FEAT-003 | Baixo | FE + BE |
 
 **Entregaveis:**
-- Checkout funcional com Stripe (subscricoes + pacotes avulso)
-- Links publicos para partilhar resultados
+- Fluxo free sem step de mascara (Upload → Estilo → Gerar)
+- Starter+ mantem fluxo completo com masking
+- Landing page com exemplos reais de before/after
 - Botao "Gerar variacao" no resultado
 
-**Dependencia:** FEAT-001 deve estar concluida antes de ativar Stripe.
+**Decisao a tomar antes:** modelo Fal AI para free (flux/schnell vs flux/dev) e se a diferenca de qualidade e suficiente para motivar upgrade.
 
 ---
 
-## Semana 5-6 — Reter e expandir
+## Proxima fase — Retencao e valor
 
-**Objetivo:** Funcionalidades que fazem utilizadores voltar.
+**Objetivo:** Features que fazem utilizadores voltar e justificam plano Pro.
 
-| Feature | ID | Esforço | Repositorio |
+| Feature | ID | Esforco | Repositorio |
 |---|---|---|---|
-| Exportacao PDF com branding | FEAT-006 | Medio | FE + BE |
-| Estilos custom guardados | FEAT-007 | Medio | FE + BE |
+| Pagina de conta (/account) | FEAT-NEW-002 | Medio | FE + BE |
+| Partilha publica por link | FEAT-005 | Medio | FE + BE |
+| Exportacao PDF com branding | FEAT-006 | Medio | FE |
 | Onboarding guiado | FEAT-010 | Baixo | FE |
 
-**Entregaveis:**
-- PDF profissional com before/after + branding
-- Estilos personalizados reutilizaveis
-- Tour para novos utilizadores
+---
+
+## Fase futura — Features premium (Pro / Agency)
+
+| Feature | ID | Esforco |
+|---|---|---|
+| Auto-detecao de mascara (SAM) | FEAT-009 | Alto |
+| Multiplos estilos em paralelo | FEAT-008 | Alto |
+| Estilos custom guardados | FEAT-007 | Medio |
+| Video / walkthrough | FEAT-016 | Muito alto |
 
 ---
 
-## Apos Semana 6 — Backlog aberto
+## Backlog aberto (priorizar com feedback de utilizadores)
 
-Priorizar com base em feedback de utilizadores e metricas:
-
-- FEAT-008: Multiplos estilos em paralelo
-- FEAT-009: Modo "mobilar tudo" sem mascara manual
 - FEAT-011: Comparacao side-by-side
-- FEAT-012: Favoritos no historico
+- FEAT-012: Favoritos
 - FEAT-013: Undo/Redo na mascara
 - FEAT-014: Dashboard metricas
 - FEAT-015: Integracao portais imobiliarios
-- FEAT-016: Video / 360 walkthrough

@@ -2,28 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/authContext";
-import { getUsage } from "../../lib/api";
-
-interface Usage {
-  plan: string;
-  used: number;
-  limit: number | null;
-  remaining: number | null;
-}
+import { useUsage } from "../../contexts/usageContext";
 
 export const Header = () => {
-  const { logout, token } = useAuth();
+  const { logout } = useAuth();
+  const { usage } = useUsage();
   const router = useRouter();
-  const [usage, setUsage] = useState<Usage | null>(null);
-
-  useEffect(() => {
-    if (!token) return;
-    getUsage(token)
-      .then(setUsage)
-      .catch(() => {});
-  }, [token]);
 
   function handleLogout() {
     logout();

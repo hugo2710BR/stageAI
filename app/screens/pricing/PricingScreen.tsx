@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getPlans, createCheckout, type Plan } from "../../lib/api";
 import { useAuth } from "../../contexts/authContext";
@@ -10,6 +11,7 @@ export default function PricingScreen() {
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const { token } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     getPlans()
@@ -19,7 +21,11 @@ export default function PricingScreen() {
   }, []);
 
   async function handleUpgrade(plan: Plan) {
-    if (!plan.lsVariantId || !token) return;
+    if (!plan.lsVariantId) return;
+    if (!token) {
+      router.push("/register");
+      return;
+    }
     setCheckoutLoading(plan.name);
     try {
       const url = await createCheckout(token, plan.name);
