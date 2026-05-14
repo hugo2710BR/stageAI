@@ -152,6 +152,55 @@ export async function getPlans(): Promise<Plan[]> {
   return res.json();
 }
 
+export type Account = {
+  name: string | null;
+  email: string;
+  plan: string;
+  planDisplayName: string;
+  planUpgradedAt: string | null;
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+};
+
+export async function getAccount(token: string): Promise<Account> {
+  const res = await fetch(`${API_URL}/account`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    handleUnauthorized(res);
+    const data = await res.json();
+    throw new Error(data.message || 'Erro ao carregar conta');
+  }
+  return res.json();
+}
+
+export async function updateAccount(token: string, name: string): Promise<{ name: string }> {
+  const res = await fetch(`${API_URL}/account`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    handleUnauthorized(res);
+    const data = await res.json();
+    throw new Error(data.message || 'Erro ao atualizar conta');
+  }
+  return res.json();
+}
+
+export async function deleteAccount(token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/account`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    handleUnauthorized(res);
+    const data = await res.json();
+    throw new Error(data.message || 'Erro ao eliminar conta');
+  }
+}
+
 export async function getStagingHistory(token: string) {
   const res = await fetch(`${API_URL}/staging`, {
     headers: { Authorization: `Bearer ${token}` },
